@@ -2,36 +2,37 @@ package app;
 
 import org.newdawn.slick.Input;
 
+import java.util.ArrayList;
+
 public class AppInput extends Input {
 
 	public static final int BUTTON_A = 1;
 	public static final int BUTTON_B = 2;
 	public static final int BUTTON_X = 4;
 	public static final int BUTTON_Y = 8;
-	public static final int BUTTON_L = 64;
-	public static final int BUTTON_R = 128;
-	public static final int BUTTON_ZL = 256;
-	public static final int BUTTON_ZR = 512;
-	public static final int BUTTON_MINUS = 16;
-	public static final int BUTTON_PLUS = 32;
-	public static final int BUTTON_SL = 0;
-	public static final int BUTTON_SR = 0;
-	public static final int BUTTON_UP = 1024;
-	public static final int BUTTON_DOWN = 2048;
-	public static final int BUTTON_LEFT = 4096;
-	public static final int BUTTON_RIGHT = 8192;
-	public static final int AXIS_XL = 1;
-	public static final int AXIS_YL = 0;
-	public static final int AXIS_XR = -1;
-	public static final int AXIS_YR = -1;
+	public static final int DPAD_DOWN = 16;
+	public static final int DPAD_RIGHT = 32;
+	public static final int DPAD_LEFT = 64;
+	public static final int DPAD_UP = 128;
+	public static final int BUTTON_START = 256;
+	public static final int BUTTON_SELECT = 512;
 
-	private static final int BUTTON_COUNT = 16;
-	private static final int AXIS_COUNT = 4;
+	public static int AXIS_XL = 1;
+	public static int AXIS_YL = 0;
+	public static int AXIS_XR = 5;
+	public static int AXIS_YR = 4;
 
-	private boolean pollFlag;
-	private int[] controls;
-	private int[] controllerPressed;
-	private int[] controllerMoved;
+	private static final int BUTTON_COUNT = 10; //seulement 4 boutons utilisés sur la manette : ABXY
+	private static final int AXIS_COUNT = 6; //meme si il n't a que 4 axes utiles, il faut lire jusqu'au 6eme sur Linux
+
+	//TODO : buttonsDown et buttonsUp ne sont pas encore implémentés
+	//les boutons sont stockés sous un entier afin de récupérer les plusieurs inputs en un seul appel
+	private int buttonsPressed; //les boutons enfoncés
+	private int buttonsDown; //les boutons qui viennent d'être enfoncés
+	private int buttonsUp; //les boutons qui viennent d'être relachés
+	private float[] axes;
+
+	private ArrayList<Integer> keyboardMapping;
 
 	private float scale;
 	private float offsetX;
@@ -44,16 +45,125 @@ public class AppInput extends Input {
 
 	public AppInput(int height) {
 		super(height);
-		this.pollFlag = false;
-		int controllerCount = this.getControllerCount();
-		this.controls = new int[controllerCount];
-		this.controllerPressed = new int[controllerCount];
-		this.controllerMoved = new int[controllerCount];
 		this.scaleX = 1;
 		this.scaleY = 1;
 		this.xoffset = 0;
 		this.yoffset = 0;
+
+		this.buttonsPressed = 0;
+		this.buttonsDown = 0;
+		this.buttonsUp = 0;
+		this.axes = new float[AXIS_COUNT];
+
+		//Liste des boutons manette activés au clavier
+		keyboardMapping = new ArrayList<>(BUTTON_COUNT);
+		keyboardMapping.add(KEY_SPACE); //A
+		keyboardMapping.add(KEY_B); //B
+		keyboardMapping.add(KEY_C); //X
+		keyboardMapping.add(KEY_V); //Y
+		keyboardMapping.add(KEY_G); //DPAD DOWN
+		keyboardMapping.add(KEY_H); //DPAD RIGHT
+		keyboardMapping.add(KEY_F); //DPAD LEFT
+		keyboardMapping.add(KEY_T); //DPAD UP
+		keyboardMapping.add(KEY_RETURN); //START
+		keyboardMapping.add(KEY_BACK); //SELECT
+
+		//corrige les axes sur windows
+		if(System.getProperty("os.name").toLowerCase().contains("windows")) {
+			AXIS_XR = 3;
+			AXIS_YR = 2;
+		}
 	}
+
+	//############
+	//  GAMEPAD  #
+	//############
+
+	//mise a jour des inputs
+	@Override
+	public void poll(int width, int height) {
+		super.poll(width, height);
+
+		//détecte la manette parmis tout les controlleurs
+		int gamepadIndex = 0;
+		for(int i = 0; i < super.getControllerCount(); i++) {
+			if(super.getAxisCount(i) > 2)
+				gamepadIndex = i;
+		}
+
+		//lecture des boutons manette ABXY
+		buttonsPressed = 0;
+		for (int i = 0; i < 4; i++) {
+			try {
+				if (super.isButtonPressed (i, gamepadIndex))
+					buttonsPressed |= 1 << i;
+			} catch (IndexOutOfBoundsException exception) {}
+		}
+
+		//permet d'actioner les boutons manette depuis le clavier
+		for(int i = 0; i < keyboardMapping.size(); i++)
+		{
+			if(super.isKeyDown(keyboardMapping.get(i)))
+				buttonsPressed |= 1 << i;
+		}
+
+		//lecture des axes sur la manette
+		for(int i = 0; i < AXIS_COUNT; i++)
+		{
+			if(i < super.getAxisCount(gamepadIndex))
+				axes[i] = super.getAxisValue(gamepadIndex, i);
+		}
+
+		//TODO: simuler les axes avec le clavier
+	}
+
+	//verifie si un des boutons demandé est maintenu
+	//il est possible de demander plusieurs boutons en meme temps avec un OR bit à bit sur les membres statiques
+	public boolean isButtonPressed(int buttons) {
+		for (int i = 0; i < BUTTON_COUNT; i++) {
+			if ((buttons >> i & 1) == 1 && (buttonsPressed >> i & 1) == 1)
+				return true;
+		}
+		return false;
+	}
+
+	//permet d'accéder à l'axe demandé (il faut utiliser les membres statiques)
+	public float getAxisValue(int axis) {
+		return axes[axis];
+	}
+
+	//verifie si l'axe est vraiment positif
+	public boolean isAxisPos(int axis) {
+		return axes[axis] > 0.7;
+	}
+
+	//verifie si l'axe est vraiment negatif
+	public boolean isAxisNeg(int axis) {
+		return axes[axis] < -0.7;
+	}
+
+	//##############
+	//  OVERRIDES  #
+	//##############
+
+	@Override
+	public float getAxisValue(int axis, int controller) {
+		return getAxisValue(axis);
+	}
+
+	@Override
+	public boolean isButtonPressed(int buttons, int controller) {
+		return isButtonPressed(buttons);
+	}
+
+	//TODO : refaire les menus pour pouvoir supprimer cette fonction
+	public int getButtonCount(int id) {
+		return BUTTON_COUNT;
+	}
+
+	//####################
+	//  SOURIS ET ECRAN  #
+	//####################
 
 	void setCanvasClip(float scale, float offsetX, float offsetY) {
 		this.scale = scale;
@@ -111,181 +221,4 @@ public class AppInput extends Input {
 		super.setOffset(xoffset, yoffset);
 		super.setScale(scaleX, scaleY);
 	}
-
-	@Override
-	public void poll(int width, int height) {
-		this.pollFlag = true;
-		super.poll(width, height);
-		for (int i = 0, l = this.getControllerCount(); i < l; i++) {
-			try {
-				float value = super.getAxisValue(i, 4);
-				if (((this.controllerMoved[i] & 16) == 0)) {
-					if (value == -1f) {
-						value = 0f;
-					} else {
-						this.controllerMoved[i] |= 16;
-					}
-				}
-				if (((this.controls[i] & 1) == 0) == value > .5f) {
-					this.controls[i] ^= 1;
-					if ((this.controls[i] & 1) != 0) {
-						this.controllerPressed[i] |= 1;
-					}
-				}
-				if (((this.controls[i] & 2) == 0) == value < -.5f) {
-					this.controls[i] ^= 2;
-					if ((this.controls[i] & 2) != 0) {
-						this.controllerPressed[i] |= 2;
-					}
-				}
-			} catch (IndexOutOfBoundsException exception) {}
-		}
-		this.pollFlag = false;
-	}
-
-	@Override
-	public boolean isControllerUp(int controller) {
-		return super.isControllerUp(controller) && !super.isControllerDown(controller);
-	}
-
-	@Override
-	public boolean isControllerDown(int controller) {
-		return super.isControllerDown(controller) && !super.isControllerUp(controller);
-	}
-
-	@Override
-	public boolean isControllerLeft(int controller) {
-		return super.isControllerLeft(controller) && !super.isControllerRight(controller);
-	}
-
-	@Override
-	public boolean isControllerRight(int controller) {
-		return super.isControllerRight(controller) && !super.isControllerLeft(controller);
-	}
-
-	@Override
-	public boolean isButtonPressed(int buttons, int controller) {
-		if (this.pollFlag) {
-			try {
-				if (super.isButtonPressed(buttons, controller)) {
-					return true;
-				}
-			} catch (ArrayIndexOutOfBoundsException exception) {}
-			return false;
-		}
-		for (int i = 0, j = 0, l = AppInput.BUTTON_COUNT; i < l; i++, j++) {
-			if ((buttons & 1) != 0) {
-				switch (i) {
-					case 10:
-						if (this.isControllerUp (controller)) {
-							return true;
-						}
-						break;
-					case 11:
-						if (this.isControllerDown (controller)) {
-							return true;
-						}
-						break;
-					case 12:
-						if (this.isControllerLeft (controller)) {
-							return true;
-						}
-						break;
-					case 13:
-						if (this.isControllerRight (controller)) {
-							return true;
-						}
-						break;
-					default:
-						try {
-							if (super.isButtonPressed (j, controller)) {
-								return true;
-							}
-						} catch (IndexOutOfBoundsException exception) {}
-				}
-			}
-			buttons >>>= 1;
-		}
-		return false;
-	}
-
-	// public boolean areButtonsPressed(int buttons, int controller) {}
-
-	public int getButtonCount(int controller) {
-		return AppInput.BUTTON_COUNT;
-	}
-
-	@Override
-	public boolean isControlPressed(int buttons, int controller) {
-		for (int i = 0, j = 0, l = AppInput.BUTTON_COUNT; i < l; i++, j++) {
-			if ((buttons & 1) != 0) {
-				switch (i) {
-					case 10:
-					case 11:
-					case 12:
-					case 13:
-						try {
-							if (super.isControlPressed ((j - 8) % 4, controller)) {
-								return true;
-							}
-						} catch (IndexOutOfBoundsException exception) {}
-						break;
-					default:
-						try {
-							if (super.isControlPressed(j + 4, controller)) {
-								return true;
-							}
-						} catch (IndexOutOfBoundsException exception) {}
-				}
-			}
-			buttons >>>= 1;
-		}
-		return false;
-	}
-
-	// public boolean areControlsPressed(int buttons, int controller) {}
-
-	public int getControlCount(int controller) {
-		return AppInput.BUTTON_COUNT;
-	}
-
-	@Override
-	public String getAxisName(int axis, int controller) {
-		try {
-			if (axis < AppInput.AXIS_COUNT) {
-				return super.getAxisName(controller, axis ^ 1);
-			}
-		} catch (IndexOutOfBoundsException exception) {}
-		return "";
-	}
-
-	@Override
-	public float getAxisValue(int axis, int controller) {
-		try {
-			if (axis < AppInput.AXIS_COUNT) {
-				float value = super.getAxisValue(controller, axis ^ 1);
-				if ((this.controllerMoved[controller] & (1 << axis)) != 0) {
-					return value;
-				} else if (value != -1f) {
-					this.controllerMoved[controller] |= (1 << axis);
-					return value;
-				}
-			}
-		} catch (IndexOutOfBoundsException exception) {}
-		return 0f;
-	}
-
-	@Override
-	public int getAxisCount(int controller) {
-		return AppInput.AXIS_COUNT;
-	}
-
-	@Override
-	public void clearControlPressedRecord() {
-		super.clearControlPressedRecord();
-		for (int i = 0, l = this.getControllerCount(); i < l; i++) {
-			this.controllerPressed[i] = 0;
-		}
-	}
-
 }

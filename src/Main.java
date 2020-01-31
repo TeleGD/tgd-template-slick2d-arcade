@@ -3,10 +3,10 @@ import app.AppGame;
 public final class Main {
 
 	public static final void main(String[] arguments) {
-		String title = "Uni By TGD";
+		String title = "TGD Arcade Input";
 		int width = 1024;
 		int height = 768;
-		boolean fullscreen = true;
+		boolean fullscreen = false;
 		new AppGame(title, width, height, fullscreen) {
 
 			@Override

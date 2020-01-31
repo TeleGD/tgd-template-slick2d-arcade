@@ -57,10 +57,10 @@ public abstract class AppWorld extends AppState {
 		AppGame appGame = (AppGame) game;
 		AppPlayer gameMaster = appGame.appPlayers.get(0);
 		int gameMasterID = gameMaster.getControllerID();
-		boolean BUTTON_PLUS = appInput.isButtonPressed(AppInput.BUTTON_PLUS, gameMasterID);
+		boolean BUTTON_PLUS = appInput.isButtonPressed(AppInput.BUTTON_START, gameMasterID);
 		int gameMasterRecord = gameMaster.getButtonPressedRecord();
-		if (BUTTON_PLUS == ((gameMasterRecord & AppInput.BUTTON_PLUS) == 0)) {
-			gameMasterRecord ^= AppInput.BUTTON_PLUS;
+		if (BUTTON_PLUS == ((gameMasterRecord & AppInput.BUTTON_START) == 0)) {
+			gameMasterRecord ^= AppInput.BUTTON_START;
 			if (BUTTON_PLUS) {
 				this.state = 1;
 				appGame.enterState(AppGame.PAGES_PAUSE, new FadeOutTransition(), new FadeInTransition());

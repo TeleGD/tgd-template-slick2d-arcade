@@ -76,11 +76,11 @@ public class Welcome extends AppPage {
 		this.forwardFlag = false;
 		this.gameMasterID = AppInput.ANY_CONTROLLER;
 		for (int i = input.getControllerCount() - 1; i >= 0; i--) {
-			if (input.isButtonPressed(AppInput.BUTTON_MINUS, i)) {
+			if (input.isButtonPressed(AppInput.BUTTON_SELECT, i)) {
 				this.backFlag = true;
 				break;
 			}
-			if (input.isButtonPressed(AppInput.BUTTON_PLUS, i)) {
+			if (input.isButtonPressed(AppInput.BUTTON_A, i)) {
 				this.forwardFlag = true;
 				this.gameMasterID = i;
 				break;
@@ -101,7 +101,7 @@ public class Welcome extends AppPage {
 			if (appGame.appPlayers.size() == 0) {
 				int colorID = appGame.availableColorIDs.remove(0);
 				String name = "Joueur " + AppPlayer.COLOR_NAMES[colorID];
-				appGame.appPlayers.add(0, new AppPlayer(colorID, this.gameMasterID, name, AppInput.BUTTON_PLUS));
+				appGame.appPlayers.add(0, new AppPlayer(colorID, this.gameMasterID, name, AppInput.BUTTON_START));
 				appGame.enterState(AppGame.PAGES_MENU, new FadeOutTransition(), new FadeInTransition());
 			}
 		}
