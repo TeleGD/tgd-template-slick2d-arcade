@@ -1,9 +1,5 @@
 package games.test;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import com.sun.xml.internal.bind.v2.schemagen.xmlschema.Appinfo;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.Font;
 import org.newdawn.slick.GameContainer;

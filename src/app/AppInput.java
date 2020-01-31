@@ -18,9 +18,9 @@ public class AppInput extends Input {
 	public static final int BUTTON_SELECT = 512;
 
 	public static int AXIS_XL = 1;
-	public static int AXIS_YL = 0;
-	public static int AXIS_XR = 5;
-	public static int AXIS_YR = 4;
+	public static int AXIS_YL = 2;
+	public static int AXIS_XR = 4;
+	public static int AXIS_YR = 5;
 
 	private static final int BUTTON_COUNT = 10; //seulement 4 boutons utilisés sur la manette : ABXY
 	private static final int AXIS_COUNT = 6; //meme si il n't a que 4 axes utiles, il faut lire jusqu'au 6eme sur Linux
@@ -70,6 +70,8 @@ public class AppInput extends Input {
 
 		//corrige les axes sur windows
 		if(System.getProperty("os.name").toLowerCase().contains("windows")) {
+			AXIS_XL = 1;
+			AXIS_YL = 0;
 			AXIS_XR = 3;
 			AXIS_YR = 2;
 		}
