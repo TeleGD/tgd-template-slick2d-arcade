@@ -30,9 +30,13 @@ public class AppInput extends Input {
 	private int buttonsPressed; //les boutons enfoncés
 	private int buttonsDown; //les boutons qui viennent d'être enfoncés
 	private int buttonsUp; //les boutons qui viennent d'être relachés
-	private float[] axes;
 
-	private ArrayList<Integer> keyboardMapping;
+	private float[] rawAxes;
+	private float[] axes;
+	private float deadZone = 0.1f; //seuil minimale du joystick
+
+	private int[] keyboardButtons;
+	private int[] keyboardAxes;
 
 	private float scale;
 	private float offsetX;
@@ -53,20 +57,34 @@ public class AppInput extends Input {
 		this.buttonsPressed = 0;
 		this.buttonsDown = 0;
 		this.buttonsUp = 0;
+		this.rawAxes = new float[AXIS_COUNT];
 		this.axes = new float[AXIS_COUNT];
 
 		//Liste des boutons manette activés au clavier
-		keyboardMapping = new ArrayList<>(BUTTON_COUNT);
-		keyboardMapping.add(KEY_SPACE); //A
-		keyboardMapping.add(KEY_B); //B
-		keyboardMapping.add(KEY_C); //X
-		keyboardMapping.add(KEY_V); //Y
-		keyboardMapping.add(KEY_G); //DPAD DOWN
-		keyboardMapping.add(KEY_H); //DPAD RIGHT
-		keyboardMapping.add(KEY_F); //DPAD LEFT
-		keyboardMapping.add(KEY_T); //DPAD UP
-		keyboardMapping.add(KEY_RETURN); //START
-		keyboardMapping.add(KEY_BACK); //SELECT
+		keyboardButtons = new int[] {
+			KEY_SPACE, //A
+			KEY_B, //B
+			KEY_C, //X
+			KEY_V, //Y
+			KEY_G, //DPAD DOWN
+			KEY_H, //DPAD RIGHT
+			KEY_F, //DPAD LEFT
+			KEY_T, //DPAD UP
+			KEY_RETURN, //START
+			KEY_BACK //SELECT
+		};
+		
+		//Simulation des axes au clavier
+		keyboardAxes = new int[]{
+			KEY_D, //XL+
+			KEY_Q, //XL-
+			KEY_S, //YL+
+			KEY_Z, //YL-
+			KEY_LEFT, //XR+
+			KEY_RIGHT, //XR-
+			KEY_DOWN, //YR+
+			KEY_UP //YR-
+		};
 
 		//corrige les axes sur windows
 		if(System.getProperty("os.name").toLowerCase().contains("windows")) {
@@ -87,36 +105,57 @@ public class AppInput extends Input {
 		super.poll(width, height);
 
 		//détecte la manette parmis tout les controlleurs
-		int gamepadIndex = 0;
+		int gamepadIndex = -1;
 		for(int i = 0; i < super.getControllerCount(); i++) {
 			if(super.getAxisCount(i) > 2)
 				gamepadIndex = i;
 		}
+		//si gamepadIndex reste égal à -1, il n'y a pas de manette branchée
 
 		//lecture des boutons manette ABXY
 		buttonsPressed = 0;
-		for (int i = 0; i < 4; i++) {
-			try {
-				if (super.isButtonPressed (i, gamepadIndex))
-					buttonsPressed |= 1 << i;
-			} catch (IndexOutOfBoundsException exception) {}
+		if(gamepadIndex != -1) {
+			for (int i = 0; i < 4; i++) {
+				try {
+					if (super.isButtonPressed (i, gamepadIndex))
+						buttonsPressed |= 1 << i;
+				} catch (IndexOutOfBoundsException exception) {}
+			}
 		}
 
 		//permet d'actioner les boutons manette depuis le clavier
-		for(int i = 0; i < keyboardMapping.size(); i++)
+		for(int i = 0; i < keyboardButtons.length; i++)
 		{
-			if(super.isKeyDown(keyboardMapping.get(i)))
+			if(super.isKeyDown(keyboardButtons[i]))
 				buttonsPressed |= 1 << i;
 		}
 
 		//lecture des axes sur la manette
-		for(int i = 0; i < AXIS_COUNT; i++)
-		{
-			if(i < super.getAxisCount(gamepadIndex))
-				axes[i] = super.getAxisValue(gamepadIndex, i);
+		for (int i = 0; i < AXIS_COUNT; i++) {
+			rawAxes[i] = 0;
+			if (gamepadIndex != -1 && i < super.getAxisCount(gamepadIndex))
+				rawAxes[i] = super.getAxisValue(gamepadIndex, i);
 		}
 
-		//TODO: simuler les axes avec le clavier
+		//simulation des axes au clavier
+		updateKeyboardAxis(AXIS_XL, keyboardAxes[0], keyboardAxes[1]);
+		updateKeyboardAxis(AXIS_YL, keyboardAxes[2], keyboardAxes[3]);
+		updateKeyboardAxis(AXIS_XR, keyboardAxes[4], keyboardAxes[5]);
+		updateKeyboardAxis(AXIS_YR, keyboardAxes[6], keyboardAxes[7]);
+
+		for(int i = 0; i < AXIS_COUNT; i++)
+		{
+			axes[i] = (axes[i] + rawAxes[i]) / 2.0f;
+			if(Math.abs(axes[i]) < deadZone)
+				axes[i] = 0;
+		}
+	}
+
+	private void updateKeyboardAxis(int axis, int posKey, int negKey) {
+		int posVal = super.isKeyDown(posKey) ? 1 : 0;
+		int negVal = super.isKeyDown(negKey) ? -1 : 0;
+		if(Math.abs(rawAxes[axis]) < deadZone) //si le stick de la manette est dans la zone morte
+			rawAxes[axis] = posVal + negVal;
 	}
 
 	//verifie si un des boutons demandé est maintenu
@@ -142,6 +181,10 @@ public class AppInput extends Input {
 	//verifie si l'axe est vraiment negatif
 	public boolean isAxisNeg(int axis) {
 		return axes[axis] < -0.7;
+	}
+
+	public void setDeadZone(float newVal) {
+		this.deadZone = newVal;
 	}
 
 	//##############
