@@ -81,16 +81,16 @@ public class World extends AppWorld {
 		AppInput input = (AppInput) container.getInput();
 		context.setColor(Color.white);
 		context.setFont(this.lineFont);
-		drawInput(context, "A", input.isButtonPressed(AppInput.BUTTON_A), 400, 200);
-		drawInput(context,"B", input.isButtonPressed(AppInput.BUTTON_B), 450, 150);
-		drawInput(context,"X", input.isButtonPressed(AppInput.BUTTON_X), 350, 150);
-		drawInput(context,"Y", input.isButtonPressed(AppInput.BUTTON_Y), 400, 100);
-		drawInput(context, "DOWN", input.isButtonPressed(AppInput.DPAD_DOWN), 100, 200);
-		drawInput(context,"RIGHT", input.isButtonPressed(AppInput.DPAD_RIGHT), 160, 150);
-		drawInput(context,"LEFT", input.isButtonPressed(AppInput.DPAD_LEFT), 50, 150);
-		drawInput(context,"UP", input.isButtonPressed(AppInput.DPAD_UP), 120, 100);
-		drawInput(context,"START", input.isButtonPressed(AppInput.BUTTON_START), 400, 10);
-		drawInput(context,"SELECT", input.isButtonPressed(AppInput.BUTTON_SELECT), 200, 10);
+		drawInput(context, "A", input, AppInput.BUTTON_A, 400, 200);
+		drawInput(context,"B", input, AppInput.BUTTON_B, 450, 150);
+		drawInput(context,"X", input, AppInput.BUTTON_X, 350, 150);
+		drawInput(context,"Y", input, AppInput.BUTTON_Y, 400, 100);
+		drawInput(context, "DOWN", input, AppInput.DPAD_DOWN, 100, 200);
+		drawInput(context,"RIGHT", input, AppInput.DPAD_RIGHT, 160, 150);
+		drawInput(context,"LEFT", input, AppInput.DPAD_LEFT, 50, 150);
+		drawInput(context,"UP", input, AppInput.DPAD_UP, 120, 100);
+		drawInput(context,"START", input, AppInput.BUTTON_START, 400, 10);
+		drawInput(context,"SELECT", input, AppInput.BUTTON_SELECT, 200, 10);
 
 		drawAxis(context, "Axis XL : ", input, AppInput.AXIS_XL, 20, 350);
 		drawAxis(context, "Axis YL : ", input, AppInput.AXIS_YL, 20, 400);
@@ -110,9 +110,18 @@ public class World extends AppWorld {
 	}
 
 	//affiche l'état d'un bouton
-	private void drawInput(Graphics context, String name, boolean input, int x, int y)
+	private void drawInput(Graphics context, String name, AppInput input, int button, int x, int y)
 	{
-		context.setColor(input ? Color.green : Color.red);
+		if(input.isButtonDown(button)) {
+			context.setColor(Color.green);
+			context.fillRect(x, y + 5, 20 * name.length(), 45);
+		}
+		if(input.isButtonUp(button)) {
+			context.setColor(Color.red);
+			context.fillRect(x, y + 5, 20 * name.length(), 45);
+		}
+
+		context.setColor(input.isButtonPressed(button) ? Color.green : Color.red);
 		context.drawString(name, x, y);
 	}
 

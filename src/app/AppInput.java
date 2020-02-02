@@ -25,7 +25,6 @@ public class AppInput extends Input {
 	private static final int BUTTON_COUNT = 10; //seulement 4 boutons utilisés sur la manette : ABXY
 	private static final int AXIS_COUNT = 6; //meme si il n't a que 4 axes utiles, il faut lire jusqu'au 6eme sur Linux
 
-	//TODO : buttonsDown et buttonsUp ne sont pas encore implémentés
 	//les boutons sont stockés sous un entier afin de récupérer les plusieurs inputs en un seul appel
 	private int buttonsPressed; //les boutons enfoncés
 	private int buttonsDown; //les boutons qui viennent d'être enfoncés
@@ -103,6 +102,9 @@ public class AppInput extends Input {
 	@Override
 	public void poll(int width, int height) {
 		super.poll(width, height);
+		int lastButtonsState = buttonsPressed;
+		this.buttonsDown = 0;
+		this.buttonsUp = 0;
 
 		//détecte la manette parmis tout les controlleurs
 		int gamepadIndex = -1;
@@ -124,10 +126,16 @@ public class AppInput extends Input {
 		}
 
 		//permet d'actioner les boutons manette depuis le clavier
-		for(int i = 0; i < keyboardButtons.length; i++)
-		{
+		for(int i = 0; i < keyboardButtons.length; i++) {
 			if(super.isKeyDown(keyboardButtons[i]))
 				buttonsPressed |= 1 << i;
+		}
+
+		for(int i = 0; i < BUTTON_COUNT; i++) {
+			if((buttonsPressed >> i & 1) == 1 && (lastButtonsState >> i & 1) == 0)
+				buttonsDown |= 1 << i;
+			if((buttonsPressed >> i & 1) == 0 && (lastButtonsState >> i & 1) == 1)
+				buttonsUp|= 1 << i;
 		}
 
 		//lecture des axes sur la manette
@@ -164,6 +172,24 @@ public class AppInput extends Input {
 	public boolean isButtonPressed(int buttons) {
 		for (int i = 0; i < BUTTON_COUNT; i++) {
 			if ((buttons >> i & 1) == 1 && (buttonsPressed >> i & 1) == 1)
+				return true;
+		}
+		return false;
+	}
+
+	//verifie si le bouton vient d'être pressé à cette frame
+	public boolean isButtonDown(int buttons) {
+		for (int i = 0; i < BUTTON_COUNT; i++) {
+			if ((buttons >> i & 1) == 1 && (buttonsDown >> i & 1) == 1)
+				return true;
+		}
+		return false;
+	}
+
+	//verifie si le bouton vient d'être relaché à cette frame
+	public boolean isButtonUp(int buttons) {
+		for (int i = 0; i < BUTTON_COUNT; i++) {
+			if ((buttons >> i & 1) == 1 && (buttonsUp >> i & 1) == 1)
 				return true;
 		}
 		return false;
