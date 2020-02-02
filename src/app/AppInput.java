@@ -151,9 +151,11 @@ public class AppInput extends Input {
 		updateKeyboardAxis(AXIS_XR, keyboardAxes[4], keyboardAxes[5]);
 		updateKeyboardAxis(AXIS_YR, keyboardAxes[6], keyboardAxes[7]);
 
+		fixAxes(AXIS_XL, AXIS_YL);
+		fixAxes(AXIS_XR, AXIS_YR);
+
 		//lissage des axes et zone morte
-		for(int i = 0; i < AXIS_COUNT; i++)
-		{
+		for(int i = 0; i < AXIS_COUNT; i++) {
 			axes[i] = (axes[i] + rawAxes[i]) / 2.0f;
 			if(Math.abs(axes[i]) < deadZone)
 				axes[i] = 0;
@@ -165,6 +167,18 @@ public class AppInput extends Input {
 		int negVal = super.isKeyDown(negKey) ? -1 : 0;
 		if(Math.abs(rawAxes[axis]) < deadZone) //si le stick de la manette est dans la zone morte
 			rawAxes[axis] = posVal + negVal;
+	}
+
+	//corrige les axes pour ne pas sortir du cercle
+	private void fixAxes(int xAxis, int yAxis) {
+		double dist = Math.sqrt(rawAxes[xAxis] * rawAxes[xAxis] + rawAxes[yAxis] * rawAxes[yAxis]);
+		if(dist > 1) {
+			double angle = Math.atan2(rawAxes[xAxis], rawAxes[yAxis]);
+			rawAxes[xAxis] = (float)Math.sin(angle);
+			rawAxes[yAxis] = (float)Math.cos(angle);
+		}
+		rawAxes[xAxis] = Math.abs(rawAxes[xAxis]) > 0.95 ? Math.signum(rawAxes[xAxis]) : rawAxes[xAxis];
+		rawAxes[yAxis] = Math.abs(rawAxes[yAxis]) > 0.95 ? Math.signum(rawAxes[yAxis]) : rawAxes[yAxis];
 	}
 
 	//verifie si un des boutons demandé est maintenu
