@@ -80,8 +80,8 @@ public class AppInput extends Input {
 			KEY_Q, //XL-
 			KEY_S, //YL+
 			KEY_Z, //YL-
-			KEY_LEFT, //XR+
-			KEY_RIGHT, //XR-
+			KEY_RIGHT, //XR+
+			KEY_LEFT, //XR-
 			KEY_DOWN, //YR+
 			KEY_UP //YR-
 		};
@@ -143,6 +143,7 @@ public class AppInput extends Input {
 		updateKeyboardAxis(AXIS_XR, keyboardAxes[4], keyboardAxes[5]);
 		updateKeyboardAxis(AXIS_YR, keyboardAxes[6], keyboardAxes[7]);
 
+		//lissage des axes et zone morte
 		for(int i = 0; i < AXIS_COUNT; i++)
 		{
 			axes[i] = (axes[i] + rawAxes[i]) / 2.0f;

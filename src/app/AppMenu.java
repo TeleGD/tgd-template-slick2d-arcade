@@ -3,6 +3,7 @@ package app;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sun.xml.internal.bind.v2.schemagen.xmlschema.Appinfo;
 import org.newdawn.slick.Font;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
@@ -26,6 +27,7 @@ public abstract class AppMenu extends AppPage {
 	private boolean forwardFlag;
 	private boolean upFlag;
 	private boolean downFlag;
+	private boolean canMove; //vrai quand on attends un deplaceement du stick
 
 	private List<MenuItem> menu;
 
@@ -62,6 +64,7 @@ public abstract class AppMenu extends AppPage {
 		this.forwardFlag = false;
 		this.upFlag = false;
 		this.downFlag = false;
+		this.canMove = false;
 
 		this.menuBoxX = this.contentX;
 		this.menuBoxY = this.subtitleBoxY + this.subtitleBoxHeight + AppPage.gap;
@@ -83,41 +86,15 @@ public abstract class AppMenu extends AppPage {
 	public final void poll(GameContainer container, StateBasedGame game, Input user) {
 		super.poll(container, game, user);
 		AppInput input = (AppInput) user;
-		this.backFlag = false;
-		this.forwardFlag = false;
-		this.upFlag = false;
-		this.downFlag = false;
-		AppGame appGame = (AppGame) game;
-		if (appGame.appPlayers.size() != 0) {
-			AppPlayer gameMaster = appGame.appPlayers.get(0);
-			int gameMasterID = gameMaster.getControllerID();
-			boolean BUTTON_A = input.isButtonPressed(AppInput.BUTTON_A, gameMasterID);
-			boolean BUTTON_B = input.isButtonPressed(AppInput.BUTTON_B, gameMasterID);
-			boolean KEY_UP = input.isControllerUp(gameMasterID);
-			boolean KEY_DOWN = input.isControllerDown(gameMasterID);
-			boolean BUTTON_UP = KEY_UP && !KEY_DOWN;
-			boolean BUTTON_DOWN = KEY_DOWN && !KEY_UP;
-			int gameMasterRecord = gameMaster.getButtonPressedRecord();
-			if (BUTTON_A == ((gameMasterRecord & AppInput.BUTTON_A) == 0)) {
-				gameMasterRecord ^= AppInput.BUTTON_A;
-				this.forwardFlag = BUTTON_A;
-			}
-			if (BUTTON_B == ((gameMasterRecord & AppInput.BUTTON_B) == 0)) {
-				gameMasterRecord ^= AppInput.BUTTON_B;
-				this.backFlag = BUTTON_B;
-			}
-			int BIT_UP = 1 << (input.getButtonCount(gameMasterID) + (AppInput.AXIS_YL << 1));
-			if (BUTTON_UP == ((gameMasterRecord & BIT_UP) == 0)) {
-				gameMasterRecord ^= BIT_UP;
-				this.upFlag = BUTTON_UP;
-			}
-			int BIT_DOWN = 1 << (input.getButtonCount(gameMasterID) + ((AppInput.AXIS_YL << 1) | 1));
-			if (BUTTON_DOWN == ((gameMasterRecord & BIT_DOWN) == 0)) {
-				gameMasterRecord ^= BIT_DOWN;
-				this.downFlag = BUTTON_DOWN;
-			}
-			gameMaster.setButtonPressedRecord(gameMasterRecord);
-		}
+		this.forwardFlag = input.isButtonPressed(AppInput.BUTTON_A);
+		this.backFlag =  input.isButtonPressed(AppInput.BUTTON_B);
+		this.upFlag = canMove && input.isAxisPos(AppInput.AXIS_YL);
+		this.downFlag = canMove && input.isAxisNeg(AppInput.AXIS_YL);
+
+		if(this.upFlag || this.downFlag)
+			canMove = false;
+		if(input.getAxisValue(AppInput.AXIS_YL) == 0)
+			canMove = true;
 	}
 
 	@Override

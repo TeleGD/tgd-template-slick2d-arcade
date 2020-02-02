@@ -55,18 +55,10 @@ public abstract class AppWorld extends AppState {
 	public void update(GameContainer container, StateBasedGame game, int delta) {
 		AppInput appInput = (AppInput) container.getInput();
 		AppGame appGame = (AppGame) game;
-		AppPlayer gameMaster = appGame.appPlayers.get(0);
-		int gameMasterID = gameMaster.getControllerID();
-		boolean BUTTON_PLUS = appInput.isButtonPressed(AppInput.BUTTON_START, gameMasterID);
-		int gameMasterRecord = gameMaster.getButtonPressedRecord();
-		if (BUTTON_PLUS == ((gameMasterRecord & AppInput.BUTTON_START) == 0)) {
-			gameMasterRecord ^= AppInput.BUTTON_START;
-			if (BUTTON_PLUS) {
-				this.state = 1;
-				appGame.enterState(AppGame.PAGES_PAUSE, new FadeOutTransition(), new FadeInTransition());
-			}
+		if (appInput.isButtonPressed(AppInput.BUTTON_START)) {
+			this.state = 1;
+			appGame.enterState(AppGame.PAGES_PAUSE, new FadeOutTransition(), new FadeInTransition());
 		}
-		gameMaster.setButtonPressedRecord(gameMasterRecord);
 	}
 
 	@Override

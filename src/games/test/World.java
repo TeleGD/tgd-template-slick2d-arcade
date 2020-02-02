@@ -33,11 +33,6 @@ public class World extends AppWorld {
 	public void play(GameContainer container, StateBasedGame game) {
 		/* Méthode exécutée une unique fois au début du jeu */
 		AppGame appGame = (AppGame) game;
-		int n = appGame.appPlayers.size();
-		this.players = new Player[n];
-		for (int i = 0; i < n; i++) {
-			this.players[i] = new Player(appGame.appPlayers.get(i));
-		}
 		this.log = "";
 		this.lineFont = AppLoader.loadFont("/fonts/vt323.ttf", AppFont.BOLD, 48);
 		System.out.println("PLAY");
@@ -66,44 +61,6 @@ public class World extends AppWorld {
 		/* Méthode exécutée environ 60 fois par seconde */
 		super.poll(container, game, user);
 		AppInput input = (AppInput) user;
-		/*
-		for (Player player: this.players) {
-			String name = player.getName();
-			int controllerID = player.getControllerID();
-			for (int i = 0, l = input.getControlCount(controllerID); i < l; i++) {
-				if (input.isControlPressed(1 << i, controllerID)) {
-					String line = "(" + name + ").isControlPressed: " + i + "\n";
-					if (this.lines.size() == this.maxLineCount) {
-						this.lines.remove(0);
-					}
-					this.lines.add(line);
-					this.log += line;
-				}
-			}
-			for (int i = 0, l = input.getButtonCount(controllerID); i < l; i++) {
-				if (input.isButtonPressed(1 << i, controllerID)) {
-					String line = "(" + name + ").isButtonPressed: " + i + "\n";
-					if (this.lines.size() == this.maxLineCount) {
-						this.lines.remove(0);
-					}
-					this.lines.add(line);
-					this.log += line;
-				}
-			}
-			for (int i = 0, l = input.getAxisCount(controllerID); i < l; i++) {
-				float j = input.getAxisValue(i, controllerID);
-				if (j <= -.5f || j >= .5f) {
-					String line = "(" + name + ").getAxisValue: " + i + " -> " + j + "\n";
-					if (this.lines.size() == this.maxLineCount) {
-						this.lines.remove(0);
-					}
-					this.lines.add(line);
-					this.log += line;
-				}
-			}
-		}
-		 */
-
 	}
 
 	@Override

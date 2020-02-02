@@ -25,7 +25,7 @@ public class Pause extends AppMenu {
 		super.initSize(container, game, 600, 400);
 		super.init(container, game);
 		this.setTitle("Pause");
-		this.setSubtitle("Le temps de prendre un goûter");
+		this.setSubtitle("Le temps de prendre un gouter");
 		this.setMenu(Arrays.asList(new MenuItem[] {
 			new MenuItem("Retour") {
 				public void itemSelected() {

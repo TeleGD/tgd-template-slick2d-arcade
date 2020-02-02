@@ -18,7 +18,6 @@ public class Welcome extends AppPage {
 
 	private boolean backFlag;
 	private boolean forwardFlag;
-	private int gameMasterID;
 
 	private Image logo;
 
@@ -48,7 +47,6 @@ public class Welcome extends AppPage {
 
 		this.backFlag = false;
 		this.forwardFlag = false;
-		this.gameMasterID = AppInput.ANY_CONTROLLER;
 
 		this.hintBoxX = this.contentX;
 		this.hintBoxY = this.contentY;
@@ -72,38 +70,21 @@ public class Welcome extends AppPage {
 	public void poll(GameContainer container, StateBasedGame game, Input user) {
 		super.poll(container, game, user);
 		AppInput input = (AppInput) container.getInput();
-		this.backFlag = false;
-		this.forwardFlag = false;
-		this.gameMasterID = AppInput.ANY_CONTROLLER;
-		for (int i = input.getControllerCount() - 1; i >= 0; i--) {
-			if (input.isButtonPressed(AppInput.BUTTON_SELECT, i)) {
-				this.backFlag = true;
-				break;
-			}
-			if (input.isButtonPressed(AppInput.BUTTON_A, i)) {
-				this.forwardFlag = true;
-				this.gameMasterID = i;
-				break;
-			}
-		}
+		this.backFlag = input.isButtonPressed(AppInput.BUTTON_SELECT | AppInput.BUTTON_B);
+		this.forwardFlag = input.isButtonPressed(AppInput.BUTTON_A | AppInput.BUTTON_START);
 	}
 
 	@Override
 	public void update(GameContainer container, StateBasedGame game, int delta) {
 		super.update(container, game, delta);
 		AppGame appGame = (AppGame) game;
-		if (this.backFlag) {
+		if (this.backFlag) { //ferme le jeu
 			this.backFlag = false;
 			container.exit();
 		}
 		if (this.forwardFlag) {
 			this.forwardFlag = false;
-			if (appGame.appPlayers.size() == 0) {
-				int colorID = appGame.availableColorIDs.remove(0);
-				String name = "Joueur " + AppPlayer.COLOR_NAMES[colorID];
-				appGame.appPlayers.add(0, new AppPlayer(colorID, this.gameMasterID, name, AppInput.BUTTON_START));
-				appGame.enterState(AppGame.PAGES_MENU, new FadeOutTransition(), new FadeInTransition());
-			}
+			appGame.enterState(AppGame.PAGES_MENU, new FadeOutTransition(), new FadeInTransition());
 		}
 	}
 
