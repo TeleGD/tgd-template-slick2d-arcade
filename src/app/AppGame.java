@@ -1,8 +1,5 @@
 package app;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Input;
 import org.newdawn.slick.SlickException;
@@ -22,13 +19,17 @@ public abstract class AppGame extends StateBasedGame {
 		"Jeu"
 	};
 
-	public AppGame(String name, int width, int height, boolean fullscreen) {
+	public AppGame(String name, int height, boolean fullscreen) {
 		super(name);
 		try {
+			//if(fullscreen)
+			//	height = (int)Toolkit.getDefaultToolkit().getScreenSize().getHeight();
+			int width = (height * 16) / 9; //on force l'affichage 16/9 de la borne
+
 			AppContainer container = new AppContainer(this, width, height, fullscreen);
 			container.setTargetFrameRate(60);
-			//container.setVSync(true);
-			container.setShowFPS(false);
+			container.setVSync(true);
+			container.setShowFPS(true);
 			container.setIcon(AppLoader.resolve("/images/icon.png"));
 			container.start();
 		} catch (SlickException error) {}

@@ -2,8 +2,6 @@ package app;
 
 import org.newdawn.slick.Input;
 
-import java.util.ArrayList;
-
 public class AppInput extends Input {
 
 	public static final int BUTTON_A = 1;

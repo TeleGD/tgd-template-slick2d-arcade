@@ -1,15 +1,14 @@
 package pages;
 
-import java.util.Arrays;
-
+import app.AppGame;
+import app.AppMenu;
+import app.elements.MenuItem;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.state.StateBasedGame;
 import org.newdawn.slick.state.transition.FadeInTransition;
 import org.newdawn.slick.state.transition.FadeOutTransition;
 
-import app.AppGame;
-import app.AppMenu;
-import app.elements.MenuItem;
+import java.util.Arrays;
 
 public class Menu extends AppMenu {
 

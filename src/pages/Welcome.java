@@ -1,5 +1,9 @@
 package pages;
 
+import app.AppGame;
+import app.AppInput;
+import app.AppLoader;
+import app.AppPage;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
@@ -7,12 +11,6 @@ import org.newdawn.slick.Input;
 import org.newdawn.slick.state.StateBasedGame;
 import org.newdawn.slick.state.transition.FadeInTransition;
 import org.newdawn.slick.state.transition.FadeOutTransition;
-
-import app.AppGame;
-import app.AppInput;
-import app.AppLoader;
-import app.AppPage;
-import app.AppPlayer;
 
 public class Welcome extends AppPage {
 

@@ -1,9 +1,9 @@
 package app;
 
-import java.awt.Font;
-import java.io.InputStream;
-
 import org.newdawn.slick.TrueTypeFont;
+
+import java.awt.*;
+import java.io.InputStream;
 
 public class AppFont extends TrueTypeFont {
 

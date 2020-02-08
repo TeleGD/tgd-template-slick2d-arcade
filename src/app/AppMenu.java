@@ -1,16 +1,14 @@
 package app;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import com.sun.xml.internal.bind.v2.schemagen.xmlschema.Appinfo;
+import app.elements.MenuItem;
 import org.newdawn.slick.Font;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Input;
 import org.newdawn.slick.state.StateBasedGame;
 
-import app.elements.MenuItem;
+import java.util.ArrayList;
+import java.util.List;
 
 public abstract class AppMenu extends AppPage {
 

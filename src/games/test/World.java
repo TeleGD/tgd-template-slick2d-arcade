@@ -1,22 +1,10 @@
 package games.test;
 
-import org.newdawn.slick.Color;
-import org.newdawn.slick.Font;
-import org.newdawn.slick.GameContainer;
-import org.newdawn.slick.Graphics;
-import org.newdawn.slick.Input;
+import app.*;
+import org.newdawn.slick.*;
 import org.newdawn.slick.state.StateBasedGame;
 
-import app.AppFont;
-import app.AppGame;
-import app.AppInput;
-import app.AppLoader;
-import app.AppWorld;
-
 public class World extends AppWorld {
-
-	private Player[] players;
-	private String log;
 	private Font lineFont;
 
 	public World(int ID) {
@@ -33,7 +21,6 @@ public class World extends AppWorld {
 	public void play(GameContainer container, StateBasedGame game) {
 		/* Méthode exécutée une unique fois au début du jeu */
 		AppGame appGame = (AppGame) game;
-		this.log = "";
 		this.lineFont = AppLoader.loadFont("/fonts/vt323.ttf", AppFont.BOLD, 48);
 		System.out.println("PLAY");
 	}
@@ -67,10 +54,6 @@ public class World extends AppWorld {
 	public void update(GameContainer container, StateBasedGame game, int delta) {
 		/* Méthode exécutée environ 60 fois par seconde */
 		super.update(container, game, delta);
-		if (this.log.length() != 0) {
-			System.out.print(this.log);
-			this.log = "";
-		}
 	}
 
 	@Override

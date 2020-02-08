@@ -1,10 +1,10 @@
 package app;
 
-import java.io.InputStream;
-
 import org.newdawn.slick.openal.Audio;
 import org.newdawn.slick.openal.NullAudio;
 import org.newdawn.slick.openal.SoundStore;
+
+import java.io.InputStream;
 
 public class AppAudio implements Audio {
 
