@@ -1,9 +1,9 @@
 package app;
 
-import org.newdawn.slick.Image;
-import org.newdawn.slick.opengl.EmptyImageData;
-
 import java.io.InputStream;
+
+import org.newdawn.slick.opengl.EmptyImageData;
+import org.newdawn.slick.Image;
 
 public class AppPicture extends Image {
 

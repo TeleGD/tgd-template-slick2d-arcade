@@ -1,7 +1,17 @@
 package games.test;
 
-import app.*;
-import org.newdawn.slick.*;
+import org.newdawn.slick.Color;
+import org.newdawn.slick.Font;
+import org.newdawn.slick.GameContainer;
+import org.newdawn.slick.Graphics;
+import org.newdawn.slick.Input;
+
+import app.AppFont;
+import app.AppGame;
+import app.AppInput;
+import app.AppLoader;
+import app.AppWorld;
+
 import org.newdawn.slick.state.StateBasedGame;
 
 public class World extends AppWorld {
